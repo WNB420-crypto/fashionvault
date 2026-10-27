@@ -518,12 +518,79 @@ try {
     );
   }
 
+  var CATS=['Streetwear','Luxury RTW','Contemporary','Athleisure','Sustainable','Avant-Garde','Accessories'];
+  var TIERS=['Starter','Silver','Gold','Platinum'];
+  var STATUSES=['Active','Outreach','Negotiation','Intake'];
+
+  function inputStyle(){return {width:'100%',border:'1.5px solid '+BD,borderRadius:'10px',padding:'10px 13px',fontSize:'14px',boxSizing:'border-box',fontFamily:'inherit',background:BG,color:DK,marginBottom:'10px'};}
+  function labelStyle(){return {fontSize:'12px',fontWeight:'700',color:DK,display:'block',marginBottom:'4px'};}
+  function selectStyle(){return {width:'100%',border:'1.5px solid '+BD,borderRadius:'10px',padding:'10px 13px',fontSize:'14px',boxSizing:'border-box',fontFamily:'inherit',background:BG,color:DK,marginBottom:'10px'};}
+
   function Backend(props) {
+    var editingState=React.useState(null),editing=editingState[0],setEditing=editingState[1];
+    var editDataState=React.useState({}),editData=editDataState[0],setEditData=editDataState[1];
+    var showAppsState=React.useState(false),showApps=showAppsState[0],setShowApps=showAppsState[1];
+    var appsState=React.useState(function(){try{var a=JSON.parse(localStorage.getItem('fashionvault_applications_v1'));return Array.isArray(a)?a:[]}catch{return []}});
+    var apps=appsState[0],setApps=appsState[1];
+    function saveApps(a){setApps(a);try{localStorage.setItem('fashionvault_applications_v1',JSON.stringify(a))}catch{}}
+    var pendingCount=apps.filter(function(a){return a.status==='Pending'}).length;
+
+    function startEdit(c){setEditing(c.id);setEditData(Object.assign({},c));}
+    function upEdit(k,v){setEditData(function(d){var n=Object.assign({},d);n[k]=v;return n});}
+    function saveEdit(){
+      props.setClients(function(cs){return cs.map(function(c){return c.id===editing?Object.assign({},editData,{placements:parseInt(editData.placements)||0,revenue:parseInt(editData.revenue)||0,pieces:parseInt(editData.pieces)||0}):c})});
+      setEditing(null);
+    }
+    function removeBrand(c){
+      if(window.confirm('Remove '+c.name+' from your roster?')){
+        props.setClients(function(cs){return cs.filter(function(x){return x.id!==c.id})});
+        if(editing===c.id)setEditing(null);
+      }
+    }
+    function approveApp(app){
+      props.setClients(function(cs){return cs.concat([{id:Date.now(),name:(app.brandName||app.firstName+' '+app.lastName).toUpperCase(),category:app.category||'Streetwear',status:'Intake',placements:0,revenue:0,tier:'Starter',pieces:parseInt(app.pieces)||0,contact:app.email}])});
+      saveApps(apps.filter(function(a){return a.id!==app.id}));
+    }
+    function declineApp(app){saveApps(apps.filter(function(a){return a.id!==app.id}));}
+    function copyApplyLink(){navigator.clipboard.writeText(window.location.origin+'/#apply').then(function(){alert('Link copied!')}).catch(function(){alert(window.location.origin+'/#apply')});}
+
     return e('div',{style:{minHeight:'100vh',background:BG}},
-      e('div',{style:{background:N,padding:'14px 16px',display:'flex',alignItems:'center',gap:'8px'}},
+      e('div',{style:{background:N,padding:'14px 16px',display:'flex',alignItems:'center',gap:'8px',flexWrap:'wrap'}},
         e('span',{style:{display:'flex',alignItems:'center'}},e(Icon,{name:'lock',size:20,color:G})),
         e('span',{style:{fontWeight:'800',fontSize:'15px',color:DK,letterSpacing:'0.04em'}},'YOUR BRAND ROSTER'),
-        e('button',{onClick:function(){props.setView('dashboard')},style:{marginLeft:'auto',background:'rgba(255,255,255,0.1)',color:DK,border:'none',padding:'7px 12px',borderRadius:'8px',cursor:'pointer',fontSize:'12px',fontWeight:'700',fontFamily:'inherit'}},'← Dashboard')
+        e('div',{style:{marginLeft:'auto',display:'flex',gap:'8px',alignItems:'center',flexWrap:'wrap'}},
+          e('button',{onClick:copyApplyLink,style:{background:'rgba(245,211,40,0.15)',color:G,border:'1px solid '+BD,padding:'7px 12px',borderRadius:'8px',cursor:'pointer',fontSize:'12px',fontWeight:'700',fontFamily:'inherit'}},
+            e('span',{style:{display:'inline-flex',alignItems:'center',gap:'5px'}},e(Icon,{name:'arrowDiag',size:12,color:G}),'Share apply link')
+          ),
+          e('button',{onClick:function(){setShowApps(!showApps)},style:{background:pendingCount>0?G+'22':'rgba(255,255,255,0.1)',color:pendingCount>0?G:DK,border:pendingCount>0?'1px solid '+G:'none',padding:'7px 12px',borderRadius:'8px',cursor:'pointer',fontSize:'12px',fontWeight:'700',fontFamily:'inherit',position:'relative'}},
+            'Applications'+(pendingCount>0?' ('+pendingCount+')':'')
+          ),
+          e('button',{onClick:function(){props.setView('dashboard')},style:{background:'rgba(255,255,255,0.1)',color:DK,border:'none',padding:'7px 12px',borderRadius:'8px',cursor:'pointer',fontSize:'12px',fontWeight:'700',fontFamily:'inherit'}},'← Dashboard')
+        )
+      ),
+      showApps&&e('div',{style:{padding:'16px',maxWidth:'800px',margin:'0 auto'}},
+        e(Card,{style:{marginBottom:'16px'}},
+          e('div',{style:{fontWeight:'800',fontSize:'14px',marginBottom:'14px',color:G}},'INCOMING APPLICATIONS'),
+          apps.length===0
+            ? e('div',{style:{color:MID,fontSize:'13px',padding:'10px 0'}},'No applications yet. Share your apply link to get started.')
+            : apps.map(function(app){
+                return e('div',{key:app.id,style:{padding:'12px 0',borderBottom:'1px solid '+BD}},
+                  e('div',{style:{display:'flex',justifyContent:'space-between',alignItems:'flex-start',gap:'10px',flexWrap:'wrap'}},
+                    e('div',{style:{flex:1}},
+                      e('div',{style:{fontWeight:'700',color:DK,fontSize:'14px'}},(app.brandName||'').toUpperCase()||app.firstName+' '+app.lastName),
+                      e('div',{style:{fontSize:'12px',color:MID,marginTop:'2px'}},app.category+' · '+app.email),
+                      app.instagram&&e('div',{style:{fontSize:'12px',color:MID}},app.instagram),
+                      app.description&&e('div',{style:{fontSize:'12px',color:C,marginTop:'4px',fontStyle:'italic'}},'"'+app.description.slice(0,100)+(app.description.length>100?'…':'')+'"'),
+                      e('div',{style:{fontSize:'11px',color:MID,marginTop:'4px'}},'Budget: '+app.budget+' · Submitted: '+new Date(app.submittedAt).toLocaleDateString())
+                    ),
+                    e('div',{style:{display:'flex',gap:'6px'}},
+                      e('button',{onClick:function(){approveApp(app)},style:{background:G,color:'#10120D',border:'none',padding:'6px 14px',borderRadius:'8px',cursor:'pointer',fontSize:'12px',fontWeight:'700',fontFamily:'inherit'}},'Approve'),
+                      e('button',{onClick:function(){declineApp(app)},style:{background:'rgba(255,80,80,0.15)',color:'#FF5050',border:'1px solid rgba(255,80,80,0.3)',padding:'6px 14px',borderRadius:'8px',cursor:'pointer',fontSize:'12px',fontWeight:'700',fontFamily:'inherit'}},'Decline')
+                    )
+                  )
+                );
+              })
+        )
       ),
       e('div',{style:{padding:'16px',maxWidth:'800px',margin:'0 auto'}},
         e('div',{style:{display:'flex',gap:'10px',flexWrap:'wrap',marginBottom:'16px'}},
@@ -533,17 +600,40 @@ try {
         ),
         e(Card,{},
           e('div',{style:{fontWeight:'800',fontSize:'14px',marginBottom:'14px',color:DK}},'CLIENT ROSTER'),
+          props.clients.length===0&&e('div',{style:{color:MID,fontSize:'13px',padding:'8px 0'}},'No brands yet. Add one via the onboarding wizard.'),
           props.clients.map(function(c,i){
             var sc=statusColor[c.status]||MID;
-            return e('div',{key:c.id,style:{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'12px 0',borderBottom:i<props.clients.length-1?'1px solid '+BD:'none'}},
-              e('div',{},
-                e('div',{style:{fontWeight:'700',color:DK}},c.name),
-                e('div',{style:{fontSize:'12px',color:MID}},c.category+' · '+c.tier)
-              ),
-              e('div',{style:{textAlign:'right'}},
-                e('div',{style:{padding:'2px 8px',borderRadius:'20px',fontSize:'11px',fontWeight:'700',background:sc+'22',color:sc}},c.status),
-                e('div',{style:{fontSize:'12px',color:G,fontWeight:'700',marginTop:'2px'}},'$'+c.revenue.toLocaleString())
-              )
+            var isEditing=editing===c.id;
+            return e('div',{key:c.id,style:{borderBottom:i<props.clients.length-1?'1px solid '+BD:'none',padding:'12px 0'}},
+              isEditing
+                ? e('div',{},
+                    e('div',{style:{fontWeight:'700',color:G,fontSize:'12px',marginBottom:'12px',letterSpacing:'0.06em'}},'EDITING: '+c.name),
+                    e('div',{style:{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'0 12px'}},
+                      e('div',{},e('label',{style:labelStyle()},'Brand Name'),e('input',{value:editData.name||'',onChange:function(ev){upEdit('name',ev.target.value)},style:inputStyle()})),
+                      e('div',{},e('label',{style:labelStyle()},'Contact Email'),e('input',{type:'email',value:editData.contact||'',onChange:function(ev){upEdit('contact',ev.target.value)},style:inputStyle()})),
+                      e('div',{},e('label',{style:labelStyle()},'Category'),e('select',{value:editData.category||'',onChange:function(ev){upEdit('category',ev.target.value)},style:selectStyle()},CATS.map(function(x){return e('option',{key:x,value:x},x)}))),
+                      e('div',{},e('label',{style:labelStyle()},'Status'),e('select',{value:editData.status||'',onChange:function(ev){upEdit('status',ev.target.value)},style:selectStyle()},STATUSES.map(function(x){return e('option',{key:x,value:x},x)}))),
+                      e('div',{},e('label',{style:labelStyle()},'Tier'),e('select',{value:editData.tier||'',onChange:function(ev){upEdit('tier',ev.target.value)},style:selectStyle()},TIERS.map(function(x){return e('option',{key:x,value:x},x)}))),
+                      e('div',{},e('label',{style:labelStyle()},'Pieces'),e('input',{type:'number',min:0,value:editData.pieces||0,onChange:function(ev){upEdit('pieces',ev.target.value)},style:inputStyle()})),
+                      e('div',{},e('label',{style:labelStyle()},'Placements'),e('input',{type:'number',min:0,value:editData.placements||0,onChange:function(ev){upEdit('placements',ev.target.value)},style:inputStyle()})),
+                      e('div',{},e('label',{style:labelStyle()},'Revenue ($)'),e('input',{type:'number',min:0,value:editData.revenue||0,onChange:function(ev){upEdit('revenue',ev.target.value)},style:inputStyle()}))
+                    ),
+                    e('div',{style:{display:'flex',gap:'8px',marginTop:'4px'}},
+                      e(Btn,{onClick:saveEdit,sm:true},'Save changes'),
+                      e('button',{onClick:function(){setEditing(null)},style:{background:'transparent',color:MID,border:'1px solid '+BD,padding:'7px 14px',borderRadius:'8px',cursor:'pointer',fontSize:'12px',fontWeight:'700',fontFamily:'inherit'}},'Cancel')
+                    )
+                  )
+                : e('div',{style:{display:'flex',justifyContent:'space-between',alignItems:'center',gap:'8px'}},
+                    e('div',{style:{flex:1}},
+                      e('div',{style:{fontWeight:'700',color:DK}},c.name),
+                      e('div',{style:{fontSize:'12px',color:MID}},c.category+' · '+c.tier+' · '+c.placements+' placements · $'+c.revenue.toLocaleString())
+                    ),
+                    e('div',{style:{display:'flex',alignItems:'center',gap:'8px',flexWrap:'wrap',justifyContent:'flex-end'}},
+                      e('div',{style:{padding:'2px 8px',borderRadius:'20px',fontSize:'11px',fontWeight:'700',background:sc+'22',color:sc}},c.status),
+                      e('button',{onClick:function(){startEdit(c)},style:{background:'rgba(245,211,40,0.12)',color:G,border:'1px solid '+BD,padding:'5px 12px',borderRadius:'7px',cursor:'pointer',fontSize:'12px',fontWeight:'700',fontFamily:'inherit'}},'Edit'),
+                      e('button',{onClick:function(){removeBrand(c)},style:{background:'rgba(255,80,80,0.1)',color:'#FF5050',border:'1px solid rgba(255,80,80,0.25)',padding:'5px 12px',borderRadius:'7px',cursor:'pointer',fontSize:'12px',fontWeight:'700',fontFamily:'inherit'}},'Remove')
+                    )
+                  )
             );
           })
         )
@@ -551,8 +641,128 @@ try {
     );
   }
 
+  function ClientSignup(props) {
+    var stepState=React.useState(0),step=stepState[0],setStep=stepState[1];
+    var doneState=React.useState(false),done=doneState[0],setDone=doneState[1];
+    var dataState=React.useState({brandName:'',category:'Streetwear',instagram:'',website:'',pieces:'',description:'',targetMarket:'Unisex',goals:[],budget:'Let\'s discuss',firstName:'',lastName:'',email:'',phone:'',source:'Instagram'});
+    var data=dataState[0],setData=dataState[1];
+    function up(k,v){setData(function(d){var n=Object.assign({},d);n[k]=v;return n});}
+    var GOALS=['Stylist placements','Influencer gifting','Retail buyer introductions','Editorial features','Pop-up events'];
+    var BUDGETS=['Under $500','$500–$1,500','$1,500–$5,000','$5,000+','Let\'s discuss'];
+    var MARKETS=['Men','Women','Unisex','Kids'];
+    var SOURCES=['Instagram','Referral','Google','Other'];
+    var steps=['Your Brand','Collection','Goals','Contact'];
+
+    function submit(){
+      var app=Object.assign({},data,{id:Date.now(),submittedAt:new Date().toISOString(),status:'Pending'});
+      try{
+        var existing=JSON.parse(localStorage.getItem('fashionvault_applications_v1'))||[];
+        localStorage.setItem('fashionvault_applications_v1',JSON.stringify(existing.concat([app])));
+      }catch{}
+      setDone(true);
+    }
+
+    var canNext=[
+      data.brandName.trim().length>0,
+      data.pieces!==''&&parseInt(data.pieces)>=0,
+      data.goals.length>0,
+      /^\S+@\S+\.\S+$/.test(data.email)&&data.firstName.trim()&&data.lastName.trim()
+    ];
+
+    if(done) return e('div',{style:{minHeight:'100vh',background:BG,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',padding:'32px 20px',textAlign:'center'}},
+      e('div',{style:{display:'flex',justifyContent:'center',marginBottom:'20px'}},e(Icon,{name:'target',size:64,color:G})),
+      e('div',{style:{fontSize:'28px',fontWeight:'800',color:DK,marginBottom:'10px'}},'Application received.'),
+      e('div',{style:{fontSize:'15px',color:MID,maxWidth:'360px',lineHeight:1.6,marginBottom:'28px'}},'We\'ll be in touch within 48 hours. Check your inbox at ',e('span',{style:{color:G}},data.email),'.'),
+      e(Btn,{onClick:props.onDone,full:false},'Back to home')
+    );
+
+    return e('div',{style:{minHeight:'100vh',background:BG}},
+      e('div',{style:{background:N,padding:'14px 16px',display:'flex',alignItems:'center',gap:'12px'}},
+        e(BrandLogo,{onHome:props.onDone}),
+        e('span',{style:{marginLeft:'auto',fontSize:'11px',fontWeight:'700',color:MID,letterSpacing:'0.08em'}},'APPLICATIONS')
+      ),
+      e('div',{style:{padding:'16px',maxWidth:'520px',margin:'0 auto'}},
+        e('div',{style:{display:'flex',alignItems:'center',gap:'8px',marginBottom:'24px',paddingTop:'8px'}},
+          steps.map(function(s,i){
+            return e('div',{key:s,style:{display:'flex',alignItems:'center',gap:'6px'}},
+              e('span',{style:{display:'inline-flex',alignItems:'center'}},
+                e(Icon,{name:i<step?'dot':i===step?'motionOn':'motionOff',size:i===step?14:10,color:i<=step?G:BD})
+              ),
+              e('span',{style:{fontSize:'11px',fontWeight:i===step?'700':'500',color:i<=step?DK:MID,letterSpacing:'0.04em'}},s),
+              i<steps.length-1&&e('span',{style:{flex:1,height:'1px',background:i<step?G:BD,minWidth:'16px',marginLeft:'2px'}})
+            );
+          })
+        ),
+
+        e(Card,{style:{marginBottom:'20px'}},
+          step===0&&e('div',{},
+            e('div',{style:{fontSize:'22px',fontWeight:'800',color:DK,marginBottom:'4px'}},'Tell us about your brand.'),
+            e('div',{style:{fontSize:'13px',color:MID,marginBottom:'20px'}},'Let\'s start with the basics.'),
+            e('label',{style:labelStyle()},'Brand Name *'),
+            e('input',{value:data.brandName,onChange:function(ev){up('brandName',ev.target.value)},placeholder:'e.g. VOID STUDIOS',style:inputStyle()}),
+            e('label',{style:labelStyle()},'Category'),
+            e('select',{value:data.category,onChange:function(ev){up('category',ev.target.value)},style:selectStyle()},CATS.map(function(c){return e('option',{key:c,value:c},c)})),
+            e('label',{style:labelStyle()},'Instagram Handle'),
+            e('input',{value:data.instagram,onChange:function(ev){up('instagram',ev.target.value)},placeholder:'@yourbrand',style:inputStyle()}),
+            e('label',{style:labelStyle()},'Website (optional)'),
+            e('input',{value:data.website,onChange:function(ev){up('website',ev.target.value)},placeholder:'https://yourbrand.com',style:inputStyle()})
+          ),
+          step===1&&e('div',{},
+            e('div',{style:{fontSize:'22px',fontWeight:'800',color:DK,marginBottom:'4px'}},'Your collection.'),
+            e('div',{style:{fontSize:'13px',color:MID,marginBottom:'20px'}},'Help us understand what you\'re bringing.'),
+            e('label',{style:labelStyle()},'Number of Pieces'),
+            e('input',{type:'number',min:0,value:data.pieces,onChange:function(ev){up('pieces',ev.target.value)},placeholder:'e.g. 24',style:inputStyle()}),
+            e('label',{style:labelStyle()},'Brand Description (max 300 chars)'),
+            e('textarea',{value:data.description,onChange:function(ev){up('description',ev.target.value.slice(0,300))},placeholder:'What makes your brand different?',rows:4,style:Object.assign({},inputStyle(),{resize:'vertical',lineHeight:1.5})},data.description),
+            e('div',{style:{fontSize:'11px',color:MID,marginBottom:'10px'}},data.description.length+'/300'),
+            e('label',{style:labelStyle()},'Target Market'),
+            e('select',{value:data.targetMarket,onChange:function(ev){up('targetMarket',ev.target.value)},style:selectStyle()},MARKETS.map(function(m){return e('option',{key:m,value:m},m)}))
+          ),
+          step===2&&e('div',{},
+            e('div',{style:{fontSize:'22px',fontWeight:'800',color:DK,marginBottom:'4px'}},'Your placement goals.'),
+            e('div',{style:{fontSize:'13px',color:MID,marginBottom:'20px'}},'Select everything that applies.'),
+            e('label',{style:labelStyle()},'What are you looking for? *'),
+            e('div',{style:{marginBottom:'16px'}},
+              GOALS.map(function(x){
+                return e('label',{key:x,style:{display:'flex',alignItems:'center',gap:'10px',padding:'10px 12px',borderRadius:'10px',border:'1.5px solid '+(data.goals.includes(x)?G:BD),background:data.goals.includes(x)?G+'11':'transparent',cursor:'pointer',marginBottom:'8px'}},
+                  e('input',{type:'checkbox',checked:data.goals.includes(x),onChange:function(ev){up('goals',ev.target.checked?data.goals.concat([x]):data.goals.filter(function(g){return g!==x}))},style:{accentColor:G,width:'16px',height:'16px'}}),
+                  e('span',{style:{fontSize:'13px',color:data.goals.includes(x)?DK:MID,fontWeight:data.goals.includes(x)?'600':'400'}},x)
+                );
+              })
+            ),
+            e('label',{style:labelStyle()},'Monthly Budget Range'),
+            e('select',{value:data.budget,onChange:function(ev){up('budget',ev.target.value)},style:selectStyle()},BUDGETS.map(function(b){return e('option',{key:b,value:b},b)}))
+          ),
+          step===3&&e('div',{},
+            e('div',{style:{fontSize:'28px',fontWeight:'800',color:DK,marginBottom:'4px'}},'Join the vault.'),
+            e('div',{style:{fontSize:'13px',color:MID,marginBottom:'24px'}},'We review every application personally.'),
+            e('div',{style:{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'0 12px'}},
+              e('div',{},e('label',{style:labelStyle()},'First Name *'),e('input',{value:data.firstName,onChange:function(ev){up('firstName',ev.target.value)},placeholder:'First',style:inputStyle()})),
+              e('div',{},e('label',{style:labelStyle()},'Last Name *'),e('input',{value:data.lastName,onChange:function(ev){up('lastName',ev.target.value)},placeholder:'Last',style:inputStyle()}))
+            ),
+            e('label',{style:labelStyle()},'Email *'),
+            e('input',{type:'email',value:data.email,onChange:function(ev){up('email',ev.target.value)},placeholder:'you@brand.com',style:inputStyle()}),
+            e('label',{style:labelStyle()},'Phone (optional)'),
+            e('input',{type:'tel',value:data.phone,onChange:function(ev){up('phone',ev.target.value)},placeholder:'+1 (555) 000-0000',style:inputStyle()}),
+            e('label',{style:labelStyle()},'How did you hear about us?'),
+            e('select',{value:data.source,onChange:function(ev){up('source',ev.target.value)},style:selectStyle()},SOURCES.map(function(s){return e('option',{key:s,value:s},s)}))
+          )
+        ),
+
+        e('div',{style:{display:'flex',justifyContent:'space-between',gap:'10px'}},
+          step>0
+            ? e('button',{onClick:function(){setStep(function(s){return s-1})},style:{background:'transparent',color:MID,border:'1px solid '+BD,padding:'11px 22px',borderRadius:'10px',cursor:'pointer',fontSize:'13px',fontWeight:'700',fontFamily:'inherit'}},'← Back')
+            : e('button',{onClick:props.onDone,style:{background:'transparent',color:MID,border:'1px solid '+BD,padding:'11px 22px',borderRadius:'10px',cursor:'pointer',fontSize:'13px',fontWeight:'700',fontFamily:'inherit'}},'Cancel'),
+          step<3
+            ? e(Btn,{onClick:function(){setStep(function(s){return s+1})},disabled:!canNext[step]},'Continue →')
+            : e(Btn,{onClick:submit,disabled:!canNext[3]},'Apply for placement →')
+        )
+      )
+    );
+  }
+
   function App() {
-    var viewState = React.useState('dashboard');
+    var viewState = React.useState(window.location.hash==='#apply'?'signup':'dashboard');
     var view = viewState[0], setView = viewState[1];
     var clientsState = React.useState(function(){try{var saved=JSON.parse(localStorage.getItem('fashionvault_brands_v2'));return Array.isArray(saved)&&saved.every(function(c){return c&&typeof c.name==='string'&&typeof c.category==='string'&&typeof c.revenue==='number'&&typeof c.placements==='number'})?saved:INIT_CLIENTS}catch(err){return INIT_CLIENTS}});
     var clients = clientsState[0], setClients = clientsState[1];
@@ -574,7 +784,8 @@ try {
       showKey&&e(KeyModal,{onSave:saveKey,onClose:function(){setShowKey(false)}}),
       view==='onboarding'&&e(Onboarding,{onComplete:onboardComplete,onCancel:function(){setView('dashboard')}}),
       view==='dashboard'&&e(Dashboard,{clients:clients,setClients:setClients,setView:setView,apiKey:apiKey,onKeyClick:function(){setShowKey(true)}}),
-      view==='backend'&&e(Backend,{clients:clients,setView:setView})
+      view==='backend'&&e(Backend,{clients:clients,setClients:setClients,setView:setView}),
+      view==='signup'&&e(ClientSignup,{onDone:function(){setView('dashboard')}})
     );
   }
 
