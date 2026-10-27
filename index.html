@@ -24,6 +24,9 @@
 <script>
 // Catch all errors and show them on screen
 window.onerror = function(msg, src, line, col, err) {
+  // Ignore cross-origin "Script error." with no file/line (CDN noise on Safari)
+  if (msg === 'Script error.' && !src && line === 0) return true;
+  if (msg === 'Script error.' && line === 0) return true;
   var box = document.getElementById('error-box');
   box.style.display = 'block';
   box.textContent = 'JS ERROR:\n' + msg + '\nLine: ' + line + '\nFile: ' + src + '\n\n' + (err ? err.stack : '');
@@ -36,9 +39,9 @@ window.addEventListener('unhandledrejection', function(e) {
 });
 </script>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"
+<script crossorigin="anonymous" src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"
   onerror="document.getElementById('error-box').style.display='block';document.getElementById('error-box').textContent='FAILED TO LOAD REACT from cdnjs'"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"
+<script crossorigin="anonymous" src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"
   onerror="document.getElementById('error-box').style.display='block';document.getElementById('error-box').textContent='FAILED TO LOAD REACT-DOM from cdnjs'"></script>
 
 <script>
