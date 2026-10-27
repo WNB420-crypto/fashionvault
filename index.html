@@ -15,7 +15,7 @@
 <div id="error-box"></div>
 <div id="root" style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#10120D">
   <div style="text-align:center;color:#8C9BAB">
-    <div style="font-size:48px;margin-bottom:12px">👗</div>
+    <div style="margin-bottom:12px;display:flex;justify-content:center"><svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M24 6C22 6 20 7.5 20 10v1H14a2 2 0 00-2 2v20a4 4 0 004 4h16a4 4 0 004-4V13a2 2 0 00-2-2h-6v-1c0-2.5-2-4-4-4z" stroke="#B6BE92" stroke-width="2" fill="none"/><line x1="20" y1="11" x2="28" y2="11" stroke="#B6BE92" stroke-width="2"/><line x1="18" y1="21" x2="30" y2="21" stroke="#B6BE92" stroke-width="1.5"/><line x1="18" y1="27" x2="26" y2="27" stroke="#B6BE92" stroke-width="1.5"/></svg></div>
     <div style="font-size:16px;font-weight:700">Loading VNC FashionVault…</div>
     <div style="font-size:13px;margin-top:8px" id="load-status">Initializing…</div>
   </div>
@@ -64,6 +64,66 @@ try {
 
   var statusColor={Active:G,Outreach:A,Negotiation:C,Intake:MID};
 
+  // SVG Icon system — no emojis anywhere
+  function Icon(props) {
+    var sz = props.size || 16;
+    var col = props.color || 'currentColor';
+    var icons = {
+      hanger: e('svg',{width:sz,height:sz,viewBox:'0 0 32 32',fill:'none',xmlns:'http://www.w3.org/2000/svg','aria-hidden':true},
+        e('path',{d:'M16 4C14 4 12.5 5.5 12.5 7.5C12.5 9 13.5 9.8 14.5 10.2L4 19C3 19.8 3.5 21.5 4.8 21.5H27.2C28.5 21.5 29 19.8 28 19L17.5 10.2C18.5 9.8 19.5 9 19.5 7.5C19.5 5.5 18 4 16 4Z',stroke:col,strokeWidth:'1.8',fill:'none'})),
+      lock: e('svg',{width:sz,height:sz,viewBox:'0 0 20 20',fill:'none',xmlns:'http://www.w3.org/2000/svg','aria-hidden':true},
+        e('rect',{x:'4',y:'9',width:'12',height:'9',rx:'2',stroke:col,strokeWidth:'1.6',fill:'none'}),
+        e('path',{d:'M7 9V6.5A3 3 0 0113 6.5V9',stroke:col,strokeWidth:'1.6',strokeLinecap:'round',fill:'none'}),
+        e('circle',{cx:'10',cy:'14',r:'1.2',fill:col})),
+      target: e('svg',{width:sz,height:sz,viewBox:'0 0 48 48',fill:'none',xmlns:'http://www.w3.org/2000/svg','aria-hidden':true},
+        e('circle',{cx:'24',cy:'24',r:'20',stroke:col,strokeWidth:'2',fill:'none'}),
+        e('circle',{cx:'24',cy:'24',r:'12',stroke:col,strokeWidth:'2',fill:'none'}),
+        e('circle',{cx:'24',cy:'24',r:'4',fill:col}),
+        e('line',{x1:'24',y1:'4',x2:'24',y2:'12',stroke:col,strokeWidth:'2'}),
+        e('line',{x1:'24',y1:'36',x2:'24',y2:'44',stroke:col,strokeWidth:'2'}),
+        e('line',{x1:'4',y1:'24',x2:'12',y2:'24',stroke:col,strokeWidth:'2'}),
+        e('line',{x1:'36',y1:'24',x2:'44',y2:'24',stroke:col,strokeWidth:'2'})),
+      star: e('svg',{width:sz,height:sz,viewBox:'0 0 20 20',fill:'none',xmlns:'http://www.w3.org/2000/svg','aria-hidden':true},
+        e('path',{d:'M10 2L10 18M2 10L18 10M4.93 4.93L15.07 15.07M15.07 4.93L4.93 15.07',stroke:col,strokeWidth:'1.6',strokeLinecap:'round'})),
+      studio: e('svg',{width:sz,height:sz,viewBox:'0 0 16 16',fill:'none',xmlns:'http://www.w3.org/2000/svg','aria-hidden':true},
+        e('rect',{x:'1',y:'1',width:'6',height:'6',rx:'1',stroke:col,strokeWidth:'1.4',fill:'none'}),
+        e('rect',{x:'9',y:'1',width:'6',height:'6',rx:'1',stroke:col,strokeWidth:'1.4',fill:'none'}),
+        e('rect',{x:'1',y:'9',width:'6',height:'6',rx:'1',stroke:col,strokeWidth:'1.4',fill:'none'}),
+        e('rect',{x:'9',y:'9',width:'6',height:'6',rx:'1',stroke:col,strokeWidth:'1.4',fill:'none'})),
+      grid: e('svg',{width:sz,height:sz,viewBox:'0 0 16 16',fill:'none',xmlns:'http://www.w3.org/2000/svg','aria-hidden':true},
+        e('line',{x1:'5.5',y1:'1',x2:'5.5',y2:'15',stroke:col,strokeWidth:'1.3'}),
+        e('line',{x1:'10.5',y1:'1',x2:'10.5',y2:'15',stroke:col,strokeWidth:'1.3'}),
+        e('line',{x1:'1',y1:'5.5',x2:'15',y2:'5.5',stroke:col,strokeWidth:'1.3'}),
+        e('line',{x1:'1',y1:'10.5',x2:'15',y2:'10.5',stroke:col,strokeWidth:'1.3'}),
+        e('rect',{x:'1',y:'1',width:'14',height:'14',rx:'1.5',stroke:col,strokeWidth:'1.3',fill:'none'})),
+      arrowDiag: e('svg',{width:sz,height:sz,viewBox:'0 0 14 14',fill:'none',xmlns:'http://www.w3.org/2000/svg','aria-hidden':true},
+        e('path',{d:'M3 11L11 3M11 3H5M11 3V9',stroke:col,strokeWidth:'1.5',strokeLinecap:'round',strokeLinejoin:'round'})),
+      arrowRight: e('svg',{width:sz,height:sz,viewBox:'0 0 14 14',fill:'none',xmlns:'http://www.w3.org/2000/svg','aria-hidden':true},
+        e('path',{d:'M2 7H12M12 7L7 2M12 7L7 12',stroke:col,strokeWidth:'1.5',strokeLinecap:'round',strokeLinejoin:'round'})),
+      dot: e('svg',{width:sz,height:sz,viewBox:'0 0 10 10',fill:'none',xmlns:'http://www.w3.org/2000/svg','aria-hidden':true},
+        e('circle',{cx:'5',cy:'5',r:'3',fill:col})),
+      motionOn: e('svg',{width:sz,height:sz,viewBox:'0 0 14 14',fill:'none',xmlns:'http://www.w3.org/2000/svg','aria-hidden':true},
+        e('circle',{cx:'7',cy:'7',r:'5.5',stroke:col,strokeWidth:'1.4',fill:'none'}),
+        e('circle',{cx:'7',cy:'7',r:'2',fill:col})),
+      motionOff: e('svg',{width:sz,height:sz,viewBox:'0 0 14 14',fill:'none',xmlns:'http://www.w3.org/2000/svg','aria-hidden':true},
+        e('circle',{cx:'7',cy:'7',r:'5.5',stroke:col,strokeWidth:'1.4',fill:'none'})),
+      close: e('svg',{width:sz,height:sz,viewBox:'0 0 20 20',fill:'none',xmlns:'http://www.w3.org/2000/svg','aria-hidden':true},
+        e('path',{d:'M4 4L16 16M16 4L4 16',stroke:col,strokeWidth:'1.8',strokeLinecap:'round'})),
+      rocket: e('svg',{width:sz,height:sz,viewBox:'0 0 20 20',fill:'none',xmlns:'http://www.w3.org/2000/svg','aria-hidden':true},
+        e('path',{d:'M10 2C10 2 14 4 14 10L12 12H8L6 10C6 4 10 2 10 2Z',stroke:col,strokeWidth:'1.5',fill:'none'}),
+        e('path',{d:'M8 12L7 15L10 14L13 15L12 12',stroke:col,strokeWidth:'1.5',fill:'none'}),
+        e('circle',{cx:'10',cy:'8',r:'1.5',fill:col})),
+      menu: e('svg',{width:sz,height:sz,viewBox:'0 0 16 16',fill:'none',xmlns:'http://www.w3.org/2000/svg','aria-hidden':true},
+        e('line',{x1:'2',y1:'4',x2:'14',y2:'4',stroke:col,strokeWidth:'1.5',strokeLinecap:'round'}),
+        e('line',{x1:'2',y1:'8',x2:'14',y2:'8',stroke:col,strokeWidth:'1.5',strokeLinecap:'round'}),
+        e('line',{x1:'2',y1:'12',x2:'14',y2:'12',stroke:col,strokeWidth:'1.5',strokeLinecap:'round'})),
+      insights: e('svg',{width:sz,height:sz,viewBox:'0 0 16 16',fill:'none',xmlns:'http://www.w3.org/2000/svg','aria-hidden':true},
+        e('polyline',{points:'2,12 5,7 8,9 11,4 14,6',stroke:col,strokeWidth:'1.5',strokeLinecap:'round',strokeLinejoin:'round',fill:'none'}),
+        e('path',{d:'M12 2L14 4L12 6',stroke:col,strokeWidth:'1.5',strokeLinecap:'round',strokeLinejoin:'round',fill:'none'})),
+    };
+    return icons[props.name] || null;
+  }
+
   function Btn(props) {
     return e('button',{
       className:'action-btn',onClick:props.onClick, disabled:props.disabled,
@@ -92,7 +152,7 @@ try {
     return e('div',{style:{position:'fixed',inset:0,background:'rgba(13,27,42,0.75)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:1000,padding:'20px'}},
       e(Card,{style:{maxWidth:'420px',width:'100%'}},
         e('button',{className:'text-link',onClick:props.onClose},'← Back'),e('div',{style:{textAlign:'center',marginBottom:'20px'}},
-          e('div',{style:{fontSize:'36px',marginBottom:'8px'}},'✧'),
+          e('div',{style:{display:'flex',justifyContent:'center',marginBottom:'8px'}},e(Icon,{name:'star',size:36,color:G})),
           e('div',{style:{fontSize:'20px',fontWeight:'800',color:DK}},'Connect Your AI'),
           e('div',{style:{fontSize:'13px',color:MID,marginTop:'4px'}},'Enter your Anthropic API key to activate VAULTAI')
         ),
@@ -100,7 +160,9 @@ try {
         e('input',{type:'password',value:k,onChange:function(ev){setK(ev.target.value)},placeholder:'sk-ant-…',
           style:{width:'100%',border:'1.5px solid '+BD,borderRadius:'10px',padding:'11px 14px',fontSize:'14px',marginBottom:'16px',boxSizing:'border-box',fontFamily:'inherit'}}),
         e('div',{style:{fontSize:'11px',color:MID,marginBottom:'16px'}},'Kept for this browser session. Requests go directly to Anthropic. Get a key at console.anthropic.com.'),
-        e(Btn,{onClick:function(){k.startsWith('sk-')&&props.onSave(k)},disabled:!k.startsWith('sk-'),full:true},'🚀 Activate VAULTAI')
+        e(Btn,{onClick:function(){k.startsWith('sk-')&&props.onSave(k)},disabled:!k.startsWith('sk-'),full:true},
+          e('span',{style:{display:'inline-flex',alignItems:'center',gap:'6px'}},e(Icon,{name:'rocket',size:16,color:'#10120D'}),'Activate VAULTAI')
+        )
       )
     );
   }
@@ -163,6 +225,7 @@ try {
   }
 
   function BrandLogo(props){return e('a',{href:'#',className:'brand-lockup',onClick:function(ev){ev.preventDefault();props.onHome&&props.onHome()}},e('img',{src:'assets/fashionvault-logo.png',alt:'FashionVault clothing circuit board logo'}),e('span',{},'Fashion',e('b',{},'Vault')));}
+
   function Dashboard(props) {
     var tabS=useState('studio'),tab=tabS[0],setTab=tabS[1];
     var selS=useState(null),sel=selS[0],setSel=selS[1];
@@ -174,25 +237,229 @@ try {
     var filtered=cs.filter(function(c){return (cat==='All brands'||c.category===cat)&&(c.name+' '+c.category).toLowerCase().includes(q.toLowerCase())});
     var categories=['All brands'].concat(Array.from(new Set(cs.map(function(c){return c.category}))));
     function openBrand(c){setSel(c);setTab('brands');}
+
+    // Nav items: [id, iconName, label]
+    var navItems=[['studio','studio','The studio'],['brands','grid','My brands'],['insights','insights','Momentum']];
+
+    // Metric icons by index
+    var metricIcons=['insights','star','grid','motionOn'];
+
     return e('div',{className:'shell '+(motion?'motion-on':'motion-off')},
-      e('aside',{className:'sidebar'},e(BrandLogo,{onHome:function(){setTab('studio');setSel(null)}}),e('div',{className:'side-label'},'YOUR CREATIVE SPACE'),
-        e('nav',{'aria-label':'Main navigation'},[['studio','◈','The studio'],['brands','▧','My brands'],['insights','↗','Momentum']].map(function(t){return e('button',{key:t[0],className:'nav-item '+(tab===t[0]?'selected':''),onClick:function(){setTab(t[0]);setSel(null)}},e('span',{'aria-hidden':true},t[1]),t[2],tab===t[0]&&e('i'))})),
-        e('div',{className:'side-feature'},e('img',{className:'side-emblem',src:'assets/fashionvault-logo.png',alt:''}),e('span',{className:'eyebrow'},'CONNECTED BY DESIGN'),e('h3',{},'Plug into\nyour potential.'),e('p',{},'Give your next brand a space to grow.'),e('button',{className:'text-link',onClick:function(){props.setView('onboarding')}},'Create a brand ↗')),
-        e('div',{className:'side-bottom'},e('button',{onClick:props.onKeyClick},'✧  AI connection'),e('button',{onClick:function(){props.setView('backend')}},'☷  Brand roster'),e('p',{},'FASHION × TECHNOLOGY × YOU'))),
+      e('aside',{className:'sidebar'},
+        e(BrandLogo,{onHome:function(){setTab('studio');setSel(null)}}),
+        e('div',{className:'side-label'},'YOUR CREATIVE SPACE'),
+        e('nav',{'aria-label':'Main navigation'},
+          navItems.map(function(t){
+            return e('button',{key:t[0],className:'nav-item '+(tab===t[0]?'selected':''),onClick:function(){setTab(t[0]);setSel(null)}},
+              e('span',{'aria-hidden':true},e(Icon,{name:t[1],size:16})),
+              t[2],
+              tab===t[0]&&e('i')
+            );
+          })
+        ),
+        e('div',{className:'side-feature'},
+          e('img',{className:'side-emblem',src:'assets/fashionvault-logo.png',alt:''}),
+          e('span',{className:'eyebrow'},'CONNECTED BY DESIGN'),
+          e('h3',{},'Plug into\nyour potential.'),
+          e('p',{},'Give your next brand a space to grow.'),
+          e('button',{className:'text-link',onClick:function(){props.setView('onboarding')}},'Create a brand ',e(Icon,{name:'arrowDiag',size:12,color:G}))
+        ),
+        e('div',{className:'side-bottom'},
+          e('button',{onClick:props.onKeyClick},
+            e('span',{style:{display:'inline-flex',alignItems:'center',gap:'6px'}},e(Icon,{name:'star',size:14,color:MID}),'AI connection')
+          ),
+          e('button',{onClick:function(){props.setView('backend')}},
+            e('span',{style:{display:'inline-flex',alignItems:'center',gap:'6px'}},e(Icon,{name:'menu',size:14,color:MID}),'Brand roster')
+          ),
+          e('p',{},'FASHION × TECHNOLOGY × YOU')
+        )
+      ),
       e('main',{className:'main'},
-        e('header',{className:'topbar'},e('div',{},e('span',{className:'breadcrumb'},'YOUR VAULT / '),e('span',{},tab==='studio'?'The studio':tab==='brands'?'My brands':'Momentum')),e('div',{className:'top-actions'},e('button',{className:'motion-toggle','aria-pressed':motion,onClick:function(){setMotion(!motion)}},motion?'◉ Motion on':'○ Motion off'),e('span',{className:'demo-badge'},'VNC FashionVault'),e('button',{className:'avatar',title:'Open brand roster',onClick:function(){props.setView('backend')}},'FV'))),
-        tab==='studio'&&e('section',{className:'hero'},e('img',{className:'hero-image',src:'assets/campaign.png',alt:'Olive and black fashion pieces floating above yellow circuit-board stations'}),e('div',{className:'hero-shade'}),e('div',{className:'hero-copy'},e('span',{className:'eyebrow'},e('i',{className:'live-dot'}),' FASHION. IN FULL CIRCUIT.'),e('h1',{},'Your vision.',e('br'),e('em',{},'Fully connected.')),e('p',{},'An ecosystem for your next big idea. Connect your collections, build your brand, and put your vision in motion.'),e('div',{className:'hero-buttons'},e('button',{className:'primary',onClick:function(){props.setView('onboarding')}},'Build your next drop',e('span',{},'↗')),e('button',{className:'secondary',onClick:function(){setTab('brands')}},'Enter the vault →'))),e('div',{className:'hero-foot'},e('span',{},'FASHIONVAULT / CREATIVE STUDIO'),e('span',{},'CONNECTED BY DESIGN.'))),
-        tab==='studio'&&e('div',{className:'ticker','aria-hidden':true},'FASHION MEETS TECHNOLOGY',e('span',{},'✳'),'CONNECTED BY DESIGN',e('span',{},'✳'),'YOUR NEXT CHAPTER',e('span',{},'✳'),'FASHION MEETS TECHNOLOGY'),
-        tab==='studio'&&e('section',{className:'circuit-explore','aria-label':'Explore clothing stations'},e('div',{className:'circuit-title'},e('span',{className:'eyebrow'},'EXPLORE THE CIRCUIT'),e('h2',{},'Find your frequency.'),e('p',{},'Choose a station to explore your brands.')),e('div',{className:'stations'},[['All brands','01','The whole vault'],['Streetwear','02','Street culture'],['Luxury RTW','03','The atelier'],['Sustainable','04','Future conscious'],['Avant-Garde','05','Beyond the ordinary']].map(function(x){return e('button',{key:x[0],className:'station '+(station===x[0]?'station-active':''),onClick:function(){setStation(x[0]);setCat(x[0]);setQ('');document.getElementById('brand-collections').scrollIntoView({behavior:motion?'smooth':'auto',block:'start'})}},e('span',{className:'station-node'},x[1]),e('strong',{},x[2]),e('small',{},x[0]),e('span',{className:'station-arrow'},'↗'))}))),
-        tab==='insights'&&e('div',{className:'page-heading'},e('span',{className:'eyebrow'},'YOUR BIG PICTURE'),e('h1',{},'Watch your vision grow.'),e('p',{},'A snapshot of the brands and placements in your vault.')),
-        tab!=='brands'&&e('section',{className:'metrics','aria-label':'Workspace totals'},[['Total revenue','$'+cs.reduce(function(s,c){return s+c.revenue},0).toLocaleString(),'Across your brands'],['Placements',cs.reduce(function(s,c){return s+c.placements},0),'Moments in the spotlight'],['Brands in your vault',cs.length,'Individual visions. One space.'],['Active brands',cs.filter(function(c){return c.status==='Active'}).length,'Building their next chapter']].map(function(x,i){return e('div',{className:'metric',key:x[0]},e('div',{},x[0],e('span',{},['↗','✧','▧','◉'][i])),e('strong',{},x[1]),e('small',{},x[2]))})),
-        tab==='insights'?e('section',{className:'insight-panel'},e('h2',{},'Every brand has a story.'),cs.map(function(c){var max=Math.max.apply(null,cs.map(function(x){return x.revenue}));return e('div',{className:'insight-row',key:c.id},e('button',{onClick:function(){openBrand(c)}},c.name),e('div',{className:'bar-track'},e('div',{style:{width:(max?c.revenue/max*100:0)+'%'}})),e('span',{},'$'+c.revenue.toLocaleString()))})):
-        e('section',{className:'collections',id:'brand-collections'},e('div',{className:'section-title'},e('div',{},e('span',{className:'eyebrow'},'CURATED BY YOU'),e('h2',{},tab==='studio'?'Your brands. Your universe.':'Inside your vault.')),e('button',{className:'text-link',onClick:function(){props.setView('onboarding')}},'+ Add a brand')),
-          e('div',{className:'collection-tools'},e('div',{className:'filters','aria-label':'Filter brands'},categories.map(function(c){return e('button',{key:c,className:cat===c?'active':'',onClick:function(){setCat(c);setStation(c)}},c)})),e('input',{type:'search','aria-label':'Search your brands',placeholder:'Search your vault…',value:q,onChange:function(ev){setQ(ev.target.value)}})),
-          e('div',{className:'brand-grid'},filtered.map(function(c,i){return e('button',{className:'brand-card theme-'+(cs.indexOf(c)%4),key:c.id,onClick:function(){openBrand(c)}},e('div',{className:'brand-art'},e('span',{className:'status'},e('i'),c.status),e('span',{className:'brand-index'},'0'+(cs.indexOf(c)+1)),e('span',{className:'brand-visual','aria-hidden':true}),e('span',{className:'art-category'},c.category),e('span',{className:'art-arrow'},'↗')),e('div',{className:'brand-info'},e('h3',{},c.name),e('p',{},c.category+' / '+c.pieces+' pieces'),e('div',{className:'brand-numbers'},e('span',{},e('b',{},c.placements),' placements'),e('span',{},e('b',{},'$'+c.revenue.toLocaleString()),' revenue'))))}),filtered.length===0&&e('div',{className:'empty-state'},e('h3',{},'A little room for discovery.'),e('p',{},'Try another name or category.'),e('button',{className:'secondary',onClick:function(){setQ('');setCat('All brands')}},'Reset filters')))),
-        tab==='studio'&&e('section',{className:'ai-banner'},e('div',{className:'ai-orb'},'✧'),e('div',{},e('span',{className:'eyebrow'},'THE INTELLIGENCE IN YOUR CIRCUIT'),e('h2',{},'Your next move starts with an idea.'),e('p',{},'Explore placement strategies, sharpen a pitch, or find a fresh direction with VAULTAI.')),e('button',{className:'secondary',onClick:function(){setTab('brands');if(cs.length)setSel(cs[0])}},'Step into VAULTAI ↗')),
-        e('footer',{},e('span',{},'FashionVault'),e('a',{href:'assets/brand-kit.png',target:'_blank',rel:'noopener'},'View brand kit ↗'),e('span',{},'Connected by design.'),e('small',{},'Changes saved on this device · Add brands via the onboarding wizard'))),
-      sel&&e('div',{className:'modal-backdrop',onClick:function(ev){if(ev.target===ev.currentTarget)setSel(null)}},e('section',{className:'brand-modal',role:'dialog','aria-modal':true,'aria-label':sel.name,tabIndex:-1,onKeyDown:function(ev){if(ev.key==='Escape')setSel(null);if(ev.key==='Tab'){var f=ev.currentTarget.querySelectorAll('button,input,select,a[href]');if(f.length){var first=f[0],last=f[f.length-1];if(ev.shiftKey&&document.activeElement===first){ev.preventDefault();last.focus()}else if(!ev.shiftKey&&document.activeElement===last){ev.preventDefault();first.focus()}}}}},e('button',{className:'close',autoFocus:true,'aria-label':'Close brand',onClick:function(){setSel(null)}},'×'),e('span',{className:'eyebrow'},'INSIDE THE VAULT / '+sel.category),e('h2',{},sel.name),e('p',{className:'detail-meta'},sel.pieces+' pieces · '+sel.placements+' placements · '+sel.status),e('div',{className:'contact-line'},sel.contact),props.apiKey?e(AIChat,{key:sel.id,client:sel,apiKey:props.apiKey}):e('div',{className:'connect-state'},e('div',{className:'ai-orb'},'✧'),e('h3',{},'Let’s shape your next move.'),e('p',{},'Connect your AI account to brainstorm placements and build your brand strategy.'),e('button',{className:'primary',onClick:props.onKeyClick},'Connect VAULTAI ↗'))))
+        e('header',{className:'topbar'},
+          e('div',{},
+            e('span',{className:'breadcrumb'},'YOUR VAULT / '),
+            e('span',{},tab==='studio'?'The studio':tab==='brands'?'My brands':'Momentum')
+          ),
+          e('div',{className:'top-actions'},
+            e('button',{className:'motion-toggle','aria-pressed':motion,onClick:function(){setMotion(!motion)}},
+              e('span',{style:{display:'inline-flex',alignItems:'center',gap:'5px'}},
+                e(Icon,{name:motion?'motionOn':'motionOff',size:14,color:motion?G:MID}),
+                motion?'Motion on':'Motion off'
+              )
+            ),
+            e('span',{className:'demo-badge'},'VNC FashionVault'),
+            e('button',{className:'avatar',title:'Open brand roster',onClick:function(){props.setView('backend')}},'FV')
+          )
+        ),
+
+        tab==='studio'&&e('section',{className:'hero'},
+          e('img',{className:'hero-image',src:'assets/campaign.png',alt:'Olive and black fashion pieces floating above yellow circuit-board stations'}),
+          e('div',{className:'hero-shade'}),
+          e('div',{className:'hero-copy'},
+            e('span',{className:'eyebrow'},e('i',{className:'live-dot'}),' FASHION. IN FULL CIRCUIT.'),
+            e('h1',{},'Your vision.',e('br'),e('em',{},'Fully connected.')),
+            e('p',{},'An ecosystem for your next big idea. Connect your collections, build your brand, and put your vision in motion.'),
+            e('div',{className:'hero-buttons'},
+              e('button',{className:'primary',onClick:function(){props.setView('onboarding')}},
+                'Build your next drop',
+                e('span',{style:{marginLeft:'6px',display:'inline-flex',verticalAlign:'middle'}},e(Icon,{name:'arrowDiag',size:13,color:'#10120D'}))
+              ),
+              e('button',{className:'secondary',onClick:function(){setTab('brands')}},
+                'Enter the vault ',
+                e('span',{style:{display:'inline-flex',verticalAlign:'middle'}},e(Icon,{name:'arrowRight',size:13,color:DK}))
+              )
+            )
+          ),
+          e('div',{className:'hero-foot'},
+            e('span',{},'FASHIONVAULT / CREATIVE STUDIO'),
+            e('span',{},'CONNECTED BY DESIGN.')
+          )
+        ),
+
+        tab==='studio'&&e('div',{className:'ticker','aria-hidden':true},
+          'FASHION MEETS TECHNOLOGY',
+          e('span',{style:{margin:'0 8px',display:'inline-flex',verticalAlign:'middle'}},e(Icon,{name:'dot',size:8,color:G})),
+          'CONNECTED BY DESIGN',
+          e('span',{style:{margin:'0 8px',display:'inline-flex',verticalAlign:'middle'}},e(Icon,{name:'dot',size:8,color:G})),
+          'YOUR NEXT CHAPTER',
+          e('span',{style:{margin:'0 8px',display:'inline-flex',verticalAlign:'middle'}},e(Icon,{name:'dot',size:8,color:G})),
+          'FASHION MEETS TECHNOLOGY'
+        ),
+
+        tab==='studio'&&e('section',{className:'circuit-explore','aria-label':'Explore clothing stations'},
+          e('div',{className:'circuit-title'},
+            e('span',{className:'eyebrow'},'EXPLORE THE CIRCUIT'),
+            e('h2',{},'Find your frequency.'),
+            e('p',{},'Choose a station to explore your brands.')
+          ),
+          e('div',{className:'stations'},
+            [['All brands','01','The whole vault'],['Streetwear','02','Street culture'],['Luxury RTW','03','The atelier'],['Sustainable','04','Future conscious'],['Avant-Garde','05','Beyond the ordinary']].map(function(x){
+              return e('button',{key:x[0],className:'station '+(station===x[0]?'station-active':''),onClick:function(){setStation(x[0]);setCat(x[0]);setQ('');document.getElementById('brand-collections').scrollIntoView({behavior:motion?'smooth':'auto',block:'start'})}},
+                e('span',{className:'station-node'},x[1]),
+                e('strong',{},x[2]),
+                e('small',{},x[0]),
+                e('span',{className:'station-arrow'},e(Icon,{name:'arrowDiag',size:12,color:G}))
+              );
+            })
+          )
+        ),
+
+        tab==='insights'&&e('div',{className:'page-heading'},
+          e('span',{className:'eyebrow'},'YOUR BIG PICTURE'),
+          e('h1',{},'Watch your vision grow.'),
+          e('p',{},'A snapshot of the brands and placements in your vault.')
+        ),
+
+        tab!=='brands'&&e('section',{className:'metrics','aria-label':'Workspace totals'},
+          [['Total revenue','$'+cs.reduce(function(s,c){return s+c.revenue},0).toLocaleString(),'Across your brands'],['Placements',cs.reduce(function(s,c){return s+c.placements},0),'Moments in the spotlight'],['Brands in your vault',cs.length,'Individual visions. One space.'],['Active brands',cs.filter(function(c){return c.status==='Active'}).length,'Building their next chapter']].map(function(x,i){
+            return e('div',{className:'metric',key:x[0]},
+              e('div',{},x[0],e('span',{style:{marginLeft:'5px',display:'inline-flex',verticalAlign:'middle'}},e(Icon,{name:metricIcons[i],size:13,color:G}))),
+              e('strong',{},x[1]),
+              e('small',{},x[2])
+            );
+          })
+        ),
+
+        tab==='insights'
+          ? e('section',{className:'insight-panel'},
+              e('h2',{},'Every brand has a story.'),
+              cs.map(function(c){
+                var max=Math.max.apply(null,cs.map(function(x){return x.revenue}));
+                return e('div',{className:'insight-row',key:c.id},
+                  e('button',{onClick:function(){openBrand(c)}},c.name),
+                  e('div',{className:'bar-track'},e('div',{style:{width:(max?c.revenue/max*100:0)+'%'}})),
+                  e('span',{},'$'+c.revenue.toLocaleString())
+                );
+              })
+            )
+          : e('section',{className:'collections',id:'brand-collections'},
+              e('div',{className:'section-title'},
+                e('div',{},
+                  e('span',{className:'eyebrow'},'CURATED BY YOU'),
+                  e('h2',{},tab==='studio'?'Your brands. Your universe.':'Inside your vault.')
+                ),
+                e('button',{className:'text-link',onClick:function(){props.setView('onboarding')}},'+ Add a brand')
+              ),
+              e('div',{className:'collection-tools'},
+                e('div',{className:'filters','aria-label':'Filter brands'},
+                  categories.map(function(c){return e('button',{key:c,className:cat===c?'active':'',onClick:function(){setCat(c);setStation(c)}},c)})
+                ),
+                e('input',{type:'search','aria-label':'Search your brands',placeholder:'Search your vault…',value:q,onChange:function(ev){setQ(ev.target.value)}})
+              ),
+              e('div',{className:'brand-grid'},
+                filtered.map(function(c,i){
+                  return e('button',{className:'brand-card theme-'+(cs.indexOf(c)%4),key:c.id,onClick:function(){openBrand(c)}},
+                    e('div',{className:'brand-art'},
+                      e('span',{className:'status'},e('i'),c.status),
+                      e('span',{className:'brand-index'},'0'+(cs.indexOf(c)+1)),
+                      e('span',{className:'brand-visual','aria-hidden':true}),
+                      e('span',{className:'art-category'},c.category),
+                      e('span',{className:'art-arrow'},e(Icon,{name:'arrowDiag',size:12,color:G}))
+                    ),
+                    e('div',{className:'brand-info'},
+                      e('h3',{},c.name),
+                      e('p',{},c.category+' / '+c.pieces+' pieces'),
+                      e('div',{className:'brand-numbers'},
+                        e('span',{},e('b',{},c.placements),' placements'),
+                        e('span',{},e('b',{},'$'+c.revenue.toLocaleString()),' revenue')
+                      )
+                    )
+                  );
+                }),
+                filtered.length===0&&e('div',{className:'empty-state'},
+                  e('h3',{},'A little room for discovery.'),
+                  e('p',{},'Try another name or category.'),
+                  e('button',{className:'secondary',onClick:function(){setQ('');setCat('All brands')}},'Reset filters')
+                )
+              )
+            ),
+
+        tab==='studio'&&e('section',{className:'ai-banner'},
+          e('div',{className:'ai-orb'},e(Icon,{name:'star',size:28,color:G})),
+          e('div',{},
+            e('span',{className:'eyebrow'},'THE INTELLIGENCE IN YOUR CIRCUIT'),
+            e('h2',{},'Your next move starts with an idea.'),
+            e('p',{},'Explore placement strategies, sharpen a pitch, or find a fresh direction with VAULTAI.')
+          ),
+          e('button',{className:'secondary',onClick:function(){setTab('brands');if(cs.length)setSel(cs[0])}},
+            'Step into VAULTAI ',
+            e('span',{style:{display:'inline-flex',verticalAlign:'middle'}},e(Icon,{name:'arrowDiag',size:12,color:DK}))
+          )
+        ),
+
+        e('footer',{},
+          e('span',{},'FashionVault'),
+          e('a',{href:'assets/brand-kit.png',target:'_blank',rel:'noopener'},'View brand kit ',e(Icon,{name:'arrowDiag',size:11,color:G})),
+          e('span',{},'Connected by design.'),
+          e('small',{},'Changes saved on this device · Add brands via the onboarding wizard')
+        )
+      ),
+
+      sel&&e('div',{className:'modal-backdrop',onClick:function(ev){if(ev.target===ev.currentTarget)setSel(null)}},
+        e('section',{className:'brand-modal',role:'dialog','aria-modal':true,'aria-label':sel.name,tabIndex:-1,
+          onKeyDown:function(ev){
+            if(ev.key==='Escape')setSel(null);
+            if(ev.key==='Tab'){var f=ev.currentTarget.querySelectorAll('button,input,select,a[href]');if(f.length){var first=f[0],last=f[f.length-1];if(ev.shiftKey&&document.activeElement===first){ev.preventDefault();last.focus()}else if(!ev.shiftKey&&document.activeElement===last){ev.preventDefault();first.focus()}}}
+          }
+        },
+          e('button',{className:'close',autoFocus:true,'aria-label':'Close brand',onClick:function(){setSel(null)}},e(Icon,{name:'close',size:18,color:MID})),
+          e('span',{className:'eyebrow'},'INSIDE THE VAULT / '+sel.category),
+          e('h2',{},sel.name),
+          e('p',{className:'detail-meta'},sel.pieces+' pieces · '+sel.placements+' placements · '+sel.status),
+          e('div',{className:'contact-line'},sel.contact),
+          props.apiKey
+            ? e(AIChat,{key:sel.id,client:sel,apiKey:props.apiKey})
+            : e('div',{className:'connect-state'},
+                e('div',{className:'ai-orb'},e(Icon,{name:'star',size:28,color:G})),
+                e('h3',{},'Let\'s shape your next move.'),
+                e('p',{},'Connect your AI account to brainstorm placements and build your brand strategy.'),
+                e('button',{className:'primary',onClick:props.onKeyClick},
+                  'Connect VAULTAI ',
+                  e('span',{style:{display:'inline-flex',verticalAlign:'middle'}},e(Icon,{name:'arrowDiag',size:12,color:'#10120D'}))
+                )
+              )
+        )
+      )
     );
   }
 
@@ -206,11 +473,12 @@ try {
 
     return e('div',{style:{minHeight:'100vh',background:BG}},
       e('div',{style:{background:N,padding:'14px 16px',display:'flex',alignItems:'center',gap:'8px'}},
-        e('span',{style:{fontSize:'20px'}},'👗'),
+        e('span',{style:{display:'flex',alignItems:'center'}},e(Icon,{name:'hanger',size:22,color:G})),
         e('span',{style:{fontWeight:'800',fontSize:'15px',color:DK,letterSpacing:'0.04em'}},'YOUR NEXT CHAPTER'),
         e('span',{style:{marginLeft:'auto',fontSize:'12px',color:'rgba(255,255,255,0.5)'}},step+1+'/3')
       ),
-      e('button',{className:'back-studio',onClick:props.onCancel},'← Back to the studio'),e('div',{style:{padding:'20px 16px',maxWidth:'480px',margin:'0 auto'}},
+      e('button',{className:'back-studio',onClick:props.onCancel},'← Back to the studio'),
+      e('div',{style:{padding:'20px 16px',maxWidth:'480px',margin:'0 auto'}},
         e(Card,{},
           step===0&&e('div',{},
             e('div',{style:{fontSize:'20px',fontWeight:'800',color:DK,marginBottom:'16px'}},'First, make it yours.'),
@@ -229,7 +497,7 @@ try {
               style:{width:'100%',border:'1.5px solid '+BD,borderRadius:'10px',padding:'11px 14px',fontSize:'14px',boxSizing:'border-box',fontFamily:'inherit'}})
           ),
           step===2&&e('div',{style:{textAlign:'center',padding:'20px 0'}},
-            e('div',{style:{fontSize:'48px',marginBottom:'16px'}},'🎯'),
+            e('div',{style:{display:'flex',justifyContent:'center',marginBottom:'16px'}},e(Icon,{name:'target',size:52,color:G})),
             e('div',{style:{fontSize:'22px',fontWeight:'800',color:DK,marginBottom:'8px'}},'You\'re All Set!'),
             e('div',{style:{fontSize:'14px',color:MID,marginBottom:'20px'}},'Save your brand, then explore your next move with VAULTAI.'),
             e('label',{style:{fontSize:'12px',fontWeight:'700',color:DK,display:'block',marginBottom:'6px'}},'Contact Email *'),
@@ -242,9 +510,7 @@ try {
         step>0&&e(Btn,{onClick:function(){setStep(function(s){return s-1})},color:N},'← Back'),
         step<2
           ?e(Btn,{onClick:function(){setStep(function(s){return s+1})},disabled:(step===0&&!data.brandName.trim())||(step===1&&(!/^\d+$/.test(data.pieces)))},'Continue →')
-          :e(Btn,{onClick:function(){
-              props.onComplete(data);
-            },disabled:!/^\S+@\S+\.\S+$/.test(data.email)},'Add to my vault ↗')
+          :e(Btn,{onClick:function(){props.onComplete(data);},disabled:!/^\S+@\S+\.\S+$/.test(data.email)},'Add to my vault →')
       )
     );
   }
@@ -252,7 +518,7 @@ try {
   function Backend(props) {
     return e('div',{style:{minHeight:'100vh',background:BG}},
       e('div',{style:{background:N,padding:'14px 16px',display:'flex',alignItems:'center',gap:'8px'}},
-        e('span',{style:{fontSize:'20px'}},'🔒'),
+        e('span',{style:{display:'flex',alignItems:'center'}},e(Icon,{name:'lock',size:20,color:G})),
         e('span',{style:{fontWeight:'800',fontSize:'15px',color:DK,letterSpacing:'0.04em'}},'YOUR BRAND ROSTER'),
         e('button',{onClick:function(){props.setView('dashboard')},style:{marginLeft:'auto',background:'rgba(255,255,255,0.1)',color:DK,border:'none',padding:'7px 12px',borderRadius:'8px',cursor:'pointer',fontSize:'12px',fontWeight:'700',fontFamily:'inherit'}},'← Dashboard')
       ),
